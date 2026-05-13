@@ -23,7 +23,7 @@ auxscriptdir = script_dir + 'aux_scripts/'
 sys.path.append(auxscriptdir)
 import mca_utils as mca
 
-deseas = True
+deseas = False
 detrended = True
 
 if deseas:
@@ -46,19 +46,25 @@ print(f"  variables: {list(ds.data_vars)}")
 print(f"  time: {ds.time.values[0]} to {ds.time.values[-1]} ({len(ds.time)} steps)")
 
 # set sector
-sector_name = 'full'
-lon_min, lon_max = -180, 180
-lat_min, lat_max = -90, -50
-crosses_dateline = False
-
-# Example for Ross:
-# sector_name = 'Ross'
-# lon_min, lon_max = 150, -80
+# sector_name = 'full'
+# lon_min, lon_max = -180, 180
 # lat_min, lat_max = -90, -50
-# crosses_dateline = True
+# crosses_dateline = False
+
+# Ross:
+sector_name = 'Ross'
+lon_min, lon_max = 150, -80
+lat_min, lat_max = -90, -50
+crosses_dateline = True
+
+# Weddell
+# sector_name = 'Weddell'
+# lon_min, lon_max = -80, 50
+# lat_min, lat_max = -90, -50
+# crosses_dateline = False
 
 #choose variables for mca
-var_1_name = 'total_ws'# forcing variable
+var_1_name = 'osc'# forcing variable
 var_2_name = 'sla' # response variable
 
 #prepare the data based on lon range
@@ -108,12 +114,33 @@ else:
         'scores1': scores1,
         'scores2': scores2,
     })
+    # scores_ds.attrs['crosses_dateline'] = 'True' if crosses_dateline else 'False'
+
+    scores_ds.attrs['sector_name'] = sector_name
+    scores_ds.attrs['crosses_dateline'] = crosses_dateline
+    scores_ds.attrs['lon_min'] = lon_min
+    scores_ds.attrs['lon_max'] = lon_max
+    scores_ds.attrs['lat_min'] = lat_min
+    scores_ds.attrs['lat_max'] = lat_max
+
+    scores_ds.attrs['crosses_dateline'] = 'True' if crosses_dateline else 'False'
     scores_ds.to_netcdf(scores_outfile)
 
     comps_ds = xr.Dataset({
         'comps1': comps1,
         'comps2': comps2,
     })
+
+    # comps_ds.attrs['crosses_dateline'] = 'True' if crosses_dateline else 'False'
+
+    comps_ds.attrs['sector_name'] = sector_name
+    comps_ds.attrs['crosses_dateline'] = crosses_dateline
+    comps_ds.attrs['lon_min'] = lon_min
+    comps_ds.attrs['lon_max'] = lon_max
+    comps_ds.attrs['lat_min'] = lat_min
+    comps_ds.attrs['lat_max'] = lat_max
+
+    comps_ds.attrs['crosses_dateline'] = 'True' if crosses_dateline else 'False'
 
     comps_ds.to_netcdf(comps_outfile)
     print(f"File does not exist")

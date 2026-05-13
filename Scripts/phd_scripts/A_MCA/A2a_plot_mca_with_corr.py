@@ -21,11 +21,15 @@ mca_dir = data_dir + 'mca_processing/'
 script_dir = workdir + 'Scripts/'
 auxscriptdir = script_dir + 'aux_scripts/'
 sys.path.append(auxscriptdir)
+import aux_stereoplot as st
+
+fig_dir = workdir + 'Figures/'
+save_dir = fig_dir + 'A_MCA/'
 
 # choose variables + sector
-var_1_name = 'total_ws'
+var_1_name = 'osc'
 var_2_name = 'sla'
-sector_name = 'full'
+sector_name = 'Ross'
 
 deseas = True
 detrended = True
@@ -52,6 +56,8 @@ scores1 = scores_file['scores1']
 scores2 = scores_file['scores2']
 comps1  = comps_file['comps1']
 comps2  = comps_file['comps2']
+
+
 
 # number of modes
 n_modes = scores1.sizes['mode']
@@ -90,15 +96,52 @@ for i in range(0,4):
     plt.xticks(rotation=30)
     plt.legend(fontsize=8)
 
+    # # comps1
+    # plt.subplot(n_modes, 3, j + 1)
+    # comps1.sel(mode=m).plot(add_colorbar=True, cbar_kwargs={'label': ''})
+    # plt.title(f'{var_1_name}')
+    #
+    # # comps2
+    # plt.subplot(n_modes, 3, j + 2)
+    # comps2.sel(mode=m).plot(add_colorbar=True, cbar_kwargs={'label': ''})
+    # plt.title(f'{var_2_name}')
+
+    # comps1 and comps2 with symmetric colour limits
+    comp1 = comps1.sel(mode=m)
+    comp2 = comps2.sel(mode=m)
+
+    # symmetric colour limits
+    maxabs1 = np.nanmax(np.abs(comp1.values))
+    maxabs2 = np.nanmax(np.abs(comp2.values))
+    maxabs = max(maxabs1, maxabs2)
+    vlims = [-maxabs, maxabs]
+
     # comps1
     plt.subplot(n_modes, 3, j + 1)
-    comps1.sel(mode=m).plot(add_colorbar=True, cbar_kwargs={'label': ''})
+    comp1.plot(add_colorbar=True,
+               cmap = 'RdBu_r',
+               vmin=vlims[0], vmax=vlims[1],
+               cbar_kwargs={'label': ''})
     plt.title(f'{var_1_name}')
 
     # comps2
     plt.subplot(n_modes, 3, j + 2)
-    comps2.sel(mode=m).plot(add_colorbar=True, cbar_kwargs={'label': ''})
+    comp2.plot(add_colorbar=True,
+               cmap = 'RdBu_r',
+               vmin=vlims[0], vmax=vlims[1],
+               cbar_kwargs={'label': ''})
     plt.title(f'{var_2_name}')
 
-fig.tight_layout()
+fig.tight_layout(rect=[0, 0, 1, 0.97])  # leaves 3% at top for suptitle
+fig.suptitle(f'MCA: {var_1_name} vs {var_2_name} — {sector_name} sector ({suffix})',
+             fontsize=14, fontweight='bold')
+
+save_name = f'mca_{var_1_name}_{var_2_name}_{sector_name}_{suffix}.png'
+save_path = save_dir + save_name
+if os.path.exists(save_path):
+    print(f"Files already exist: {save_path}")
+else:
+    print(f"Saving figure to {save_path}")
+    plt.savefig(save_path, dpi = 300, bbox_inches = 'tight')
+
 plt.show()

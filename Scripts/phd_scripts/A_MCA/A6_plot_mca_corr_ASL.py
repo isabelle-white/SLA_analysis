@@ -1,9 +1,9 @@
-# A4_plot_mca_corr_SOI.py
+# A6_plot_mca_corr_ASL.py
 """
 Load MCA scores + components, compute correlations,
 and plot MCA modes + climate index.
 
-Last modified: 14/04/2026
+Last modified: 17/04/2026
 """
 
 import numpy as np
@@ -27,11 +27,11 @@ sys.path.append(auxscriptdir)
 import aux_func as ft
 
 # choose variables + sector
-var_1_name = 'total_ws'
+var_1_name = 'osc'
 var_2_name = 'sla'
-sector_name = 'full'
+sector_name = 'Ross'
 
-deseas = True
+deseas = False
 detrended = True
 
 if deseas:
@@ -61,21 +61,22 @@ comps2  = comps_file['comps2']
 n_modes = 2
 
 # time window for index correlation
-time_start = '2005-01'
-time_end   = '2020-12'
+time_start = '2011-01'
+time_end   = '2016-02'
 
 # -------------------------------------------------------------------------
 # LOAD CLIMATE INDEX (SAM example)
 # -------------------------------------------------------------------------
 # Expecting a 2-column text file: YYYY-MM, value
-# soi_da = ft.load_climate_index(clim_dir + 'SOI/soi.txt')
-soi_ds = xr.open_dataset(clim_dir + 'SOI/'+ "soi_2000_2024.nc")
-soi_da = soi_ds["SOI"]
+# sam_da = ft.load_climate_index(clim_dir + 'SAM/sam_marshall_2024.txt')
+
+asl_ds = xr.open_dataset(clim_dir + 'ASL/'+ "ASL_1959_2024_05_data.nc")
+asl_da = asl_ds["ActCenPres"]
 
 # -------------------------------------------------------------------------
 # ALIGN TIME AXES
 # -------------------------------------------------------------------------
-common_time = np.intersect1d(soi_da.time.values, scores1.time.values)
+common_time = np.intersect1d(asl_da.time.values, scores1.time.values)
 
 if time_start is not None:
     common_time = common_time[common_time >= np.datetime64(time_start)]
@@ -83,7 +84,7 @@ if time_end is not None:
     common_time = common_time[common_time <= np.datetime64(time_end)]
 
 # normalise index
-index_da = soi_da.sel(time=common_time)
+index_da = asl_da.sel(time=common_time)
 index_norm = (index_da - index_da.mean()) / index_da.std()
 
 # -------------------------------------------------------------------------
@@ -144,9 +145,9 @@ for i, ax in enumerate(axes):
 axes[-1].set_xlabel('Year')
 fig.tight_layout(rect=[0, 0, 1, 0.97])  # leaves 3% at top for suptitle
 
-fig.suptitle(f'MCA/SOI: {var_1_name} vs {var_2_name} — {sector_name} sector ({suffix})',
+fig.suptitle(f'MCA/ASL: {var_1_name} vs {var_2_name} — {sector_name} sector ({suffix})',
              fontsize=14, fontweight='bold')
-save_name = f'mca_soi_{var_1_name}_{var_2_name}_{sector_name}_{suffix}.png'
+save_name = f'mca_asl_{var_1_name}_{var_2_name}_{sector_name}_{suffix}.png'
 save_path = save_dir + save_name
 if os.path.exists(save_path):
     print(f"Files already exist: {save_path}")
@@ -154,5 +155,4 @@ else:
     print(f"Saving figure to {save_path}")
     # plt.savefig(save_path, dpi = 300, bbox_inches = 'tight')
 
-plt.show()
 plt.show()

@@ -1,9 +1,9 @@
-# A4_plot_mca_corr_SOI.py
+# A5_plot_mca_corr_ZW3.py
 """
 Load MCA scores + components, compute correlations,
-and plot MCA modes + climate index.
+and plot MCA modes + climate index (ZW3).
 
-Last modified: 14/04/2026
+Last modified: 17/04/2026
 """
 
 import numpy as np
@@ -69,13 +69,13 @@ time_end   = '2020-12'
 # -------------------------------------------------------------------------
 # Expecting a 2-column text file: YYYY-MM, value
 # soi_da = ft.load_climate_index(clim_dir + 'SOI/soi.txt')
-soi_ds = xr.open_dataset(clim_dir + 'SOI/'+ "soi_2000_2024.nc")
-soi_da = soi_ds["SOI"]
+zw3_ds = xr.open_dataset(clim_dir + 'ZW3/'+ "zw3_2000_2024.nc")
+zw3_da = zw3_ds["zw3index_magnitude"]
 
 # -------------------------------------------------------------------------
 # ALIGN TIME AXES
 # -------------------------------------------------------------------------
-common_time = np.intersect1d(soi_da.time.values, scores1.time.values)
+common_time = np.intersect1d(zw3_da.time.values, scores1.time.values)
 
 if time_start is not None:
     common_time = common_time[common_time >= np.datetime64(time_start)]
@@ -83,7 +83,7 @@ if time_end is not None:
     common_time = common_time[common_time <= np.datetime64(time_end)]
 
 # normalise index
-index_da = soi_da.sel(time=common_time)
+index_da = zw3_da.sel(time=common_time)
 index_norm = (index_da - index_da.mean()) / index_da.std()
 
 # -------------------------------------------------------------------------
@@ -144,9 +144,9 @@ for i, ax in enumerate(axes):
 axes[-1].set_xlabel('Year')
 fig.tight_layout(rect=[0, 0, 1, 0.97])  # leaves 3% at top for suptitle
 
-fig.suptitle(f'MCA/SOI: {var_1_name} vs {var_2_name} — {sector_name} sector ({suffix})',
+fig.suptitle(f'MCA/ZW3: {var_1_name} vs {var_2_name} — {sector_name} sector ({suffix})',
              fontsize=14, fontweight='bold')
-save_name = f'mca_soi_{var_1_name}_{var_2_name}_{sector_name}_{suffix}.png'
+save_name = f'mca_zw3_{var_1_name}_{var_2_name}_{sector_name}_{suffix}.png'
 save_path = save_dir + save_name
 if os.path.exists(save_path):
     print(f"Files already exist: {save_path}")
@@ -154,5 +154,4 @@ else:
     print(f"Saving figure to {save_path}")
     # plt.savefig(save_path, dpi = 300, bbox_inches = 'tight')
 
-plt.show()
 plt.show()

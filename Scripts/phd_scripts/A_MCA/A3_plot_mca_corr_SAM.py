@@ -20,16 +20,18 @@ mca_dir = data_dir + 'mca_processing/'
 clim_dir = data_dir + 'climate_indices/'
 script_dir = workdir + 'Scripts/'
 auxscriptdir = script_dir + 'aux_scripts/'
+fig_dir = workdir + 'Figures/'
+save_dir = fig_dir + 'A_MCA/'
 
 sys.path.append(auxscriptdir)
 import aux_func as ft
 
 # choose variables + sector
-var_1_name = 'total_ws'
+var_1_name = 'osc'
 var_2_name = 'sla'
-sector_name = 'full'
+sector_name = 'Ross'
 
-deseas = True
+deseas = False
 detrended = True
 
 if deseas:
@@ -59,14 +61,17 @@ comps2  = comps_file['comps2']
 n_modes = 2
 
 # time window for index correlation
-time_start = '2005-01'
-time_end   = '2020-12'
+time_start = '2011-01'
+time_end   = '2016-02'
 
 # -------------------------------------------------------------------------
 # LOAD CLIMATE INDEX (SAM example)
 # -------------------------------------------------------------------------
 # Expecting a 2-column text file: YYYY-MM, value
-sam_da = ft.load_climate_index(clim_dir + 'SAM/sam_marshall_2024.txt')
+# sam_da = ft.load_climate_index(clim_dir + 'SAM/sam_marshall_2024.txt')
+
+sam_ds = xr.open_dataset(clim_dir + 'SAM/'+ "sam_2000_2024.nc")
+sam_da = sam_ds["SAM"]
 
 # -------------------------------------------------------------------------
 # ALIGN TIME AXES
@@ -138,5 +143,16 @@ for i, ax in enumerate(axes):
             bbox=dict(facecolor='white', edgecolor='grey', alpha=0.8))
 
 axes[-1].set_xlabel('Year')
-fig.tight_layout()
+fig.tight_layout(rect=[0, 0, 1, 0.97])  # leaves 3% at top for suptitle
+
+fig.suptitle(f'MCA/SAM: {var_1_name} vs {var_2_name} — {sector_name} sector ({suffix})',
+             fontsize=14, fontweight='bold')
+save_name = f'mca_sam_{var_1_name}_{var_2_name}_{sector_name}_{suffix}.png'
+save_path = save_dir + save_name
+if os.path.exists(save_path):
+    print(f"Files already exist: {save_path}")
+else:
+    print(f"Saving figure to {save_path}")
+    # plt.savefig(save_path, dpi = 300, bbox_inches = 'tight')
+
 plt.show()
