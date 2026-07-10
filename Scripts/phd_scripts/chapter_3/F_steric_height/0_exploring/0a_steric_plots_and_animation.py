@@ -21,7 +21,7 @@ workdir = '/Users/iw2g24/PycharmProjects/SLA_analysis/'
 script_dir = workdir + 'Scripts/'
 data_dir = workdir + 'Data/'
 auxscriptdir = script_dir + 'aux_scripts/'
-fig_dir = workdir + 'Figures/F_steric_height/'
+fig_dir = workdir + 'Figures/F_steric_height/monthly_steric_height_plots/'
 os.makedirs(fig_dir, exist_ok=True)
 
 
